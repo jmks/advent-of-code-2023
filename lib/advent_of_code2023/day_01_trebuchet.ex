@@ -1,6 +1,4 @@
 defmodule AdventOfCode2023.Day01Trebuchet do
-  import Input
-
   @moduledoc """
   --- Day 1: Trebuchet?! ---
 
@@ -26,20 +24,69 @@ defmodule AdventOfCode2023.Day01Trebuchet do
   In this example, the calibration values of these four lines are 12, 38, 15, and 77. Adding these together produces 142.
 
   Consider your entire calibration document. What is the sum of all of the calibration values?
+
+  --- Part Two ---
+
+  Your calculation isn't quite right. It looks like some of the digits are actually spelled out with letters: one, two, three, four, five, six, seven, eight, and nine also count as valid "digits".
+
+  Equipped with this new information, you now need to find the real first and last digit on each line. For example:
+
+  two1nine
+  eightwothree
+  abcone2threexyz
+  xtwone3four
+  4nineeightseven2
+  zoneight234
+  7pqrstsixteen
+
+  In this example, the calibration values are 29, 83, 13, 24, 42, 14, and 76. Adding these together produces 281.
+
+  What is the sum of all of the calibration values?
   """
 
-  def calibration(document) do
+  def calibration(document, options \\ [:numeric, :word]) do
     document
     |> Enum.map(fn line ->
-      integers =
-        line
-        |> String.codepoints()
-        |> Enum.map(&Integer.parse/1)
-        |> Enum.reject(&(&1 == :error))
-        |> Enum.map(fn {i, ""} -> i end)
+      integers = parse_integers(line, options)
 
-      Integer.undigits([hd(integers), hd(Enum.reverse(integers))])
+      Integer.undigits([List.first(integers), List.last(integers)])
     end)
     |> Enum.sum()
+  end
+
+  def parse_integers(line, options \\ [:numeric, :word]) do
+    numeric = for i <- 1..9, into: %{}, do: {to_string(i), i}
+    word = %{
+      "one" => 1,
+      "two" => 2,
+      "three" => 3,
+      "four" => 4,
+      "five" => 5,
+      "six" => 6,
+      "seven" => 7,
+      "eight" => 8,
+      "nine" => 9
+    }
+
+    mapping = Enum.reduce(options, %{}, fn
+      :numeric, map -> Map.merge(map, numeric)
+      :word, map    -> Map.merge(map, word)
+    end)
+
+    do_parse_integers(line, mapping, [])
+  end
+
+  defp do_parse_integers("", _mapping, ints), do: Enum.reverse(ints)
+
+  defp do_parse_integers(line, mapping, ints) do
+    case Enum.find_value(mapping, fn {str, int} ->
+           String.starts_with?(line, str) and {str, int}
+         end) do
+      {str, int} ->
+        do_parse_integers(String.slice(line, 1..-1//1), mapping, [int | ints])
+
+      nil ->
+        do_parse_integers(String.slice(line, 1..-1//1), mapping, ints)
+    end
   end
 end
