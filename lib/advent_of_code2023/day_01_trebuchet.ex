@@ -82,7 +82,7 @@ defmodule AdventOfCode2023.Day01Trebuchet do
     case Enum.find_value(mapping, fn {str, int} ->
            String.starts_with?(line, str) and {str, int}
          end) do
-      {str, int} ->
+      {_str, int} ->
         do_parse_integers(String.slice(line, 1..-1//1), mapping, [int | ints])
 
       nil ->
