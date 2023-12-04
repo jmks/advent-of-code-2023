@@ -23,9 +23,7 @@ defmodule Mix.Tasks.Solve do
 
     Input.strings(2)
     |> Enum.map(&parse_game/1)
-    |> Enum.map(fn game = {game_id, _sets} ->
-      {game_id, [min_cubes(game)]}
-    end)
+    |> Enum.map(&min_cubes/1)
     |> Enum.map(&power/1)
     |> Enum.sum()
   end

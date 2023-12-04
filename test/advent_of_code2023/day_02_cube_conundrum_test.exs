@@ -63,9 +63,7 @@ defmodule AdventOfCode2023.Day02CubeConundrumTest do
 
   describe "power/1" do
     test "examples" do
-      minimum_cubes = Enum.map(@example_games, fn game = {game_id, _sets} ->
-        {game_id, [min_cubes(game)]}
-      end)
+      minimum_cubes = Enum.map(@example_games, &min_cubes/1)
 
       assert Enum.map(minimum_cubes, &power/1) == [
         48,

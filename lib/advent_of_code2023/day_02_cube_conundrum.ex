@@ -88,14 +88,10 @@ defmodule AdventOfCode2023.Day02CubeConundrum do
     [red: max_cubes.(:red), green: max_cubes.(:green), blue: max_cubes.(:blue)]
   end
 
-  def power({_game_number, sets}) do
-    sets
-    |> Enum.map(fn set ->
-      set
-      |> Keyword.values()
-      |> Enum.reduce(&Kernel.*/2)
-    end)
-    |> Enum.sum()
+  def power(set) do
+    set
+    |> Keyword.values()
+    |> Enum.reduce(&Kernel.*/2)
   end
 
   defp parse_set(set) do
