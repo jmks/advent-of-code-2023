@@ -17,4 +17,16 @@ defmodule Mix.Tasks.Solve do
     |> Enum.map(fn {game_id, _sets} -> game_id end)
     |> Enum.sum()
   end
+
+  defp solve(2, 2) do
+    import AdventOfCode2023.Day02CubeConundrum
+
+    Input.strings(2)
+    |> Enum.map(&parse_game/1)
+    |> Enum.map(fn game = {game_id, _sets} ->
+      {game_id, [min_cubes(game)]}
+    end)
+    |> Enum.map(&power/1)
+    |> Enum.sum()
+  end
 end
