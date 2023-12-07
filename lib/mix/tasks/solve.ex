@@ -30,6 +30,14 @@ defmodule Mix.Tasks.Solve do
     |> Enum.sum()
   end
 
+  defp solve(3, 1) do
+    import AdventOfCode2023.Day03GearRatios
+
+    Input.raw(3)
+    |> part_numbers()
+    |> Enum.sum()
+  end
+
   defp solve(6, 1) do
     import AdventOfCode2023.Day06WaitForIt
 
