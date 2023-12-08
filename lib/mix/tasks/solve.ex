@@ -46,6 +46,13 @@ defmodule Mix.Tasks.Solve do
     |> Enum.sum()
   end
 
+  defp solve(4, 1) do
+    import AdventOfCode2023.Day04Scratchcards
+
+    Input.raw(4)
+    |> total_points()
+  end
+
   defp solve(6, 1) do
     import AdventOfCode2023.Day06WaitForIt
 
