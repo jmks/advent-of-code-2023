@@ -15,7 +15,7 @@ defmodule Mix.Tasks.Solve do
 
     Input.strings(2)
     |> Enum.map(&parse_game/1)
-    |> Enum.filter(&possible?(&1, [red: 12, green: 13, blue: 14]))
+    |> Enum.filter(&possible?(&1, red: 12, green: 13, blue: 14))
     |> Enum.map(fn {game_id, _sets} -> game_id end)
     |> Enum.sum()
   end
@@ -51,6 +51,14 @@ defmodule Mix.Tasks.Solve do
 
     Input.raw(4)
     |> total_points()
+  end
+
+  defp solve(4, 2) do
+    import AdventOfCode2023.Day04Scratchcards
+
+    Input.raw(4)
+    |> scratchcards()
+    |> Enum.sum()
   end
 
   defp solve(6, 1) do
