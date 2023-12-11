@@ -61,6 +61,13 @@ defmodule Mix.Tasks.Solve do
     |> Enum.sum()
   end
 
+  defp solve(5, 1) do
+    import AdventOfCode2023.Day05IfYouGiveSeedFertilizer
+
+    Input.raw(5)
+    |> lowest_location()
+  end
+
   defp solve(6, 1) do
     import AdventOfCode2023.Day06WaitForIt
 
