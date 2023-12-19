@@ -45,14 +45,44 @@ defmodule AdventOfCode2023.Day06WaitForIt do
   To see how much margin of error you have, determine the number of ways you can beat the record in each race; in this example, if you multiply these values together, you get 288 (4 * 8 * 9).
 
   Determine the number of ways you could beat the record in each race. What do you get if you multiply these numbers together?
+
+  --- Part Two ---
+
+  As the race is about to start, you realize the piece of paper with race times and record distances you got earlier actually just has very bad kerning. There's really only one race - ignore the spaces between the numbers on each line.
+
+  So, the example from before:
+
+  Time:      7  15   30
+  Distance:  9  40  200
+
+  ...now instead means this:
+
+  Time:      71530
+  Distance:  940200
+
+  Now, you have to figure out how many ways there are to win this single race. In this example, the race lasts for 71530 milliseconds and the record distance you need to beat is 940200 millimeters. You could hold the button anywhere from 14 to 71516 milliseconds and beat the record, a total of 71503 ways!
+
+  How many ways can you beat the record in this one much longer race?
   """
-  def parse(races) do
+  def parse(races, kerning \\ :spaces) do
     races
     |> String.split("\n", trim: true)
     |> Enum.map(fn line ->
-      Regex.scan(~r/\d+/, line)
-      |> List.flatten()
-      |> Enum.map(&String.to_integer/1)
+      digits =
+        Regex.scan(~r/\d+/, line)
+        |> List.flatten()
+        |> Enum.map(&String.to_integer/1)
+
+      if kerning == :spaces do
+        digits
+      else
+        single_number =
+          digits
+          |> Enum.flat_map(&Integer.digits/1)
+          |> Integer.undigits()
+
+        [single_number]
+      end
     end)
     |> Enum.zip()
   end

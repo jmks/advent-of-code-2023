@@ -20,6 +20,8 @@ defmodule AdventOfCode2023.Day06WaitForItTest do
              {89, 1210},
              {86, 1780}
            ]
+
+    assert parse(@example, :bad_kerning) == [{71530, 940200}]
   end
 
   describe "plans_upto/1" do
@@ -39,5 +41,6 @@ defmodule AdventOfCode2023.Day06WaitForItTest do
     assert count_better_plans(7, 9) == 4
     assert count_better_plans(15, 40) == 8
     assert count_better_plans(30, 200) == 9
+    assert count_better_plans(71530, 940200)
   end
 end

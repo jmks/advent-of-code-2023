@@ -38,4 +38,13 @@ defmodule Mix.Tasks.Solve do
     |> Enum.map(fn {ms, distance} -> count_better_plans(ms, distance) end)
     |> Enum.reduce(&Kernel.*/2)
   end
+
+  defp solve(6, 2) do
+    import AdventOfCode2023.Day06WaitForIt
+
+    Input.raw(6)
+    |> parse(:bad_kerning)
+    |> Enum.map(fn {ms, distance} -> count_better_plans(ms, distance) end)
+    |> Enum.reduce(&Kernel.*/2)
+  end
 end
