@@ -8,6 +8,8 @@ defmodule Mix.Tasks.Solve do
     IO.puts("Day #{day}, part #{part}: #{result}")
   end
 
+  defp solve(day, part)
+
   defp solve(2, 1) do
     import AdventOfCode2023.Day02CubeConundrum
 
@@ -26,5 +28,14 @@ defmodule Mix.Tasks.Solve do
     |> Enum.map(&min_cubes/1)
     |> Enum.map(&power/1)
     |> Enum.sum()
+  end
+
+  defp solve(6, 1) do
+    import AdventOfCode2023.Day06WaitForIt
+
+    Input.raw(6)
+    |> parse()
+    |> Enum.map(fn {ms, distance} -> count_better_plans(ms, distance) end)
+    |> Enum.reduce(&Kernel.*/2)
   end
 end
