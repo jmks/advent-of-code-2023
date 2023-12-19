@@ -47,4 +47,11 @@ defmodule Mix.Tasks.Solve do
     |> Enum.map(fn {ms, distance} -> count_better_plans(ms, distance) end)
     |> Enum.reduce(&Kernel.*/2)
   end
+
+  defp solve(7, 1) do
+    import AdventOfCode2023.Day07CamelCards
+
+    Input.raw(7)
+    |> total_winnings()
+  end
 end
