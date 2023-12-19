@@ -54,4 +54,11 @@ defmodule Mix.Tasks.Solve do
     Input.raw(7)
     |> total_winnings()
   end
+
+  defp solve(7, 2) do
+    import AdventOfCode2023.Day07CamelCards
+
+    Input.raw(7)
+    |> total_winnings(:jacks_wild)
+  end
 end

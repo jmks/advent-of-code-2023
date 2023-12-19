@@ -54,6 +54,30 @@ defmodule AdventOfCode2023.Day07CamelCards do
   Now, you can determine the total winnings of this set of hands by adding up the result of multiplying each hand's bid with its rank (765 * 1 + 220 * 2 + 28 * 3 + 684 * 4 + 483 * 5). So the total winnings in this example are 6440.
 
   Find the rank of every hand in your set. What are the total winnings?
+
+  --- Part Two ---
+
+  To make things a little more interesting, the Elf introduces one additional rule. Now, J cards are jokers - wildcards that can act like whatever card would make the hand the strongest type possible.
+
+  To balance this, J cards are now the weakest individual cards, weaker even than 2. The other cards stay in the same order: A, K, Q, T, 9, 8, 7, 6, 5, 4, 3, 2, J.
+
+  J cards can pretend to be whatever card is best for the purpose of determining hand type; for example, QJJQ2 is now considered four of a kind. However, for the purpose of breaking ties between two hands of the same type, J is always treated as J, not the card it's pretending to be: JKKK2 is weaker than QQQQ2 because J is weaker than Q.
+
+  Now, the above example goes very differently:
+
+  32T3K 765
+  T55J5 684
+  KK677 28
+  KTJJT 220
+  QQQJA 483
+
+  32T3K is still the only one pair; it doesn't contain any jokers, so its strength doesn't increase.
+  KK677 is now the only two pair, making it the second-weakest hand.
+  T55J5, KTJJT, and QQQJA are now all four of a kind! T55J5 gets rank 3, QQQJA gets rank 4, and KTJJT gets rank 5.
+
+  With the new joker rule, the total winnings in this example are 5905.
+
+  Using the new joker rule, find the rank of every hand in your set. What are the new total winnings?
   """
   def parse(hands) do
     hands
@@ -65,76 +89,66 @@ defmodule AdventOfCode2023.Day07CamelCards do
     end)
   end
 
-  def total_winnings(hands) do
+  def total_winnings(hands, game_rule \\ :straight) do
     hands
     |> parse()
-    |> Enum.sort_by(fn {hand, _bid} -> hand end, __MODULE__)
+    |> Enum.sort_by(fn {hand, _bid} -> hand end, fn h1, h2 -> lte(h1, h2, game_rule) end)
     |> Enum.with_index(1)
     |> Enum.map(fn {{_hand, bid}, rank} -> bid * rank end)
     |> Enum.sum()
   end
 
-  def compare(left, right) do
-    case compare_type(left, right) do
-      :eq ->
-        compare_rank(left, right)
-
-      otherwise ->
-        otherwise
-    end
+  def lte(left, right, game_rule \\ :straight) do
+    {type(left, game_rule), rank(left, game_rule)} <=
+      {type(right, game_rule), rank(right, game_rule)}
   end
 
-  def type(hand) do
-    ranks = hand |> String.codepoints() |> Enum.frequencies()
+  def type(hand, game_rule \\ :straight) do
+    ranks = best_hand(hand, game_rule) |> String.codepoints() |> Enum.frequencies()
     counts = ranks |> Map.values() |> MapSet.new()
 
     cond do
-      5 in counts -> :five_of_a_kind
-      4 in counts -> :four_of_a_kind
-      2 in counts and 3 in counts -> :full_house
-      3 in counts -> :three_of_a_kind
-      map_size(ranks) == 3 -> :two_pair
-      map_size(ranks) == 4 -> :one_pair
-      map_size(ranks) == 5 -> :high_card
+      5 in counts -> 7
+      4 in counts -> 6
+      2 in counts and 3 in counts -> 5
+      3 in counts -> 4
+      map_size(ranks) == 3 -> 3
+      map_size(ranks) == 4 -> 2
+      map_size(ranks) == 5 -> 1
     end
   end
 
-  defp compare_type(left_hand, right_hand) do
-    left_type_ordinal = left_hand |> type() |> ordinal_type()
-    right_type_ordinal = right_hand |> type() |> ordinal_type()
+  def best_hand(hand, :straight) do
+    hand
+  end
 
-    cond do
-      left_type_ordinal == right_type_ordinal -> :eq
-      left_type_ordinal > right_type_ordinal -> :gt
-      left_type_ordinal < right_type_ordinal -> :lt
+  def best_hand(hand, :jacks_wild) do
+    if String.contains?(hand, "J") do
+      highest_rank_with_jokers(hand)
+    else
+      hand
     end
   end
 
-  defp ordinal_type(:five_of_a_kind), do: 7
-  defp ordinal_type(:four_of_a_kind), do: 6
-  defp ordinal_type(:full_house), do: 5
-  defp ordinal_type(:three_of_a_kind), do: 4
-  defp ordinal_type(:two_pair), do: 3
-  defp ordinal_type(:one_pair), do: 2
-  defp ordinal_type(:high_card), do: 1
+  defp rank(hand, game_rule),
+    do: hand |> String.codepoints() |> Enum.map(&ordinal_rank(&1, game_rule))
 
-  defp compare_rank(same, same), do: :eq
+  defp ordinal_rank("A", _rule), do: 14
+  defp ordinal_rank("K", _rule), do: 13
+  defp ordinal_rank("Q", _rule), do: 12
+  defp ordinal_rank("J", :straight), do: 11
+  defp ordinal_rank("J", :jacks_wild), do: 1
+  defp ordinal_rank("T", _rule), do: 10
+  defp ordinal_rank(otherwise, _rule), do: String.to_integer(otherwise)
 
-  defp compare_rank(left, right) do
-    left_ordinal = left |> String.codepoints() |> Enum.map(&ordinal_rank/1)
-    right_ordinal = right |> String.codepoints() |> Enum.map(&ordinal_rank/1)
-
-    cond do
-      left_ordinal < right_ordinal -> :lt
-      left_ordinal > right_ordinal -> :gt
-      true -> :eq
+  # Since the hand types are rank-oriented, we get the best outcome
+  # if we replace all jokers with the same rank
+  defp highest_rank_with_jokers(hand) do
+    for card <- ["A", "K", "Q", "T", "9", "8", "7", "6", "5", "4", "3", "2"] do
+      String.replace(hand, "J", card)
     end
+    |> Enum.sort_by(& &1, fn h1, h2 -> lte(h1, h2, :jacks_wild) end)
+    |> Enum.reverse()
+    |> hd()
   end
-
-  defp ordinal_rank("A"), do: 14
-  defp ordinal_rank("K"), do: 13
-  defp ordinal_rank("Q"), do: 12
-  defp ordinal_rank("J"), do: 11
-  defp ordinal_rank("T"), do: 10
-  defp ordinal_rank(otherwise), do: String.to_integer(otherwise)
 end
