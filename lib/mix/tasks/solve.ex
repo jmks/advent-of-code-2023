@@ -116,4 +116,13 @@ defmodule Mix.Tasks.Solve do
     |> parse()
     |> then(fn {directions, map} -> ghost_steps(directions, map) end)
   end
+
+  defp solve(9, 1) do
+    import AdventOfCode2023.Day09MirageMaintenance
+
+    Input.raw(9)
+    |> parse()
+    |> Enum.map(&predict_next_reading/1)
+    |> Enum.sum()
+  end
 end
