@@ -32,4 +32,10 @@ defmodule AdventOfCode2023.Day09MirageMaintenanceTest do
     assert pairwise_difference([0, 3, 6, 9, 12, 15]) == [3, 3, 3, 3, 3]
     assert pairwise_difference([3, 3, 3, 3, 3]) == [0, 0, 0, 0]
   end
+
+  test "extrapolate_previous_reading/1" do
+    assert extrapolate_previous_reading([10, 13, 16, 21, 30, 45]) == 5
+    assert extrapolate_previous_reading([0, 3, 6, 9, 12, 15]) == -3
+    assert extrapolate_previous_reading([1, 3, 6, 10, 15, 21]) == 0
+  end
 end

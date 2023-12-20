@@ -125,4 +125,13 @@ defmodule Mix.Tasks.Solve do
     |> Enum.map(&predict_next_reading/1)
     |> Enum.sum()
   end
+
+  defp solve(9, 2) do
+    import AdventOfCode2023.Day09MirageMaintenance
+
+    Input.raw(9)
+    |> parse()
+    |> Enum.map(&extrapolate_previous_reading/1)
+    |> Enum.sum()
+  end
 end
