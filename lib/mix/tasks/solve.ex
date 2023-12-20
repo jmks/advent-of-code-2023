@@ -99,4 +99,13 @@ defmodule Mix.Tasks.Solve do
     Input.raw(7)
     |> total_winnings(:jacks_wild)
   end
+
+  defp solve(8, 1) do
+    import AdventOfCode2023.Day08HauntedWasteland
+
+    Input.raw(8)
+    |> parse()
+    |> then(fn {directions, map} -> steps(directions, map, "AAA", "ZZZ") end)
+    |> length()
+  end
 end
