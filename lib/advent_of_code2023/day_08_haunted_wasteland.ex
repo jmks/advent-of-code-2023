@@ -34,6 +34,41 @@ defmodule AdventOfCode2023.Day08HauntedWasteland do
   ZZZ = (ZZZ, ZZZ)
 
   Starting at AAA, follow the left/right instructions. How many steps are required to reach ZZZ?
+
+  --- Part Two ---
+
+  The sandstorm is upon you and you aren't any closer to escaping the wasteland. You had the camel follow the instructions, but you've barely left your starting position. It's going to take significantly more steps to escape!
+
+  What if the map isn't for people - what if the map is for ghosts? Are ghosts even bound by the laws of spacetime? Only one way to find out.
+
+  After examining the maps a bit longer, your attention is drawn to a curious fact: the number of nodes with names ending in A is equal to the number ending in Z! If you were a ghost, you'd probably just start at every node that ends with A and follow all of the paths at the same time until they all simultaneously end up at nodes that end with Z.
+
+  For example:
+
+  LR
+
+  11A = (11B, XXX)
+  11B = (XXX, 11Z)
+  11Z = (11B, XXX)
+  22A = (22B, XXX)
+  22B = (22C, 22C)
+  22C = (22Z, 22Z)
+  22Z = (22B, 22B)
+  XXX = (XXX, XXX)
+
+  Here, there are two starting nodes, 11A and 22A (because they both end with A). As you follow each left/right instruction, use that instruction to simultaneously navigate away from both nodes you're currently on. Repeat this process until all of the nodes you're currently on end with Z. (If only some of the nodes you're on end with Z, they act like any other node and you continue as normal.) In this example, you would proceed as follows:
+
+  Step 0: You are at 11A and 22A.
+  Step 1: You choose all of the left paths, leading you to 11B and 22B.
+  Step 2: You choose all of the right paths, leading you to 11Z and 22C.
+  Step 3: You choose all of the left paths, leading you to 11B and 22Z.
+  Step 4: You choose all of the right paths, leading you to 11Z and 22B.
+  Step 5: You choose all of the left paths, leading you to 11B and 22C.
+  Step 6: You choose all of the right paths, leading you to 11Z and 22Z.
+
+  So, in this example, you end up entirely on nodes that end in Z after 6 steps.
+
+  Simultaneously start on every node that ends with A. How many steps does it take before you're only on nodes that end with Z?
   """
   def parse(network) do
     [directions | map] = String.split(network, "\n", trim: true)
@@ -41,22 +76,46 @@ defmodule AdventOfCode2023.Day08HauntedWasteland do
     {parse_directions(directions), parse_map(map)}
   end
 
-  def steps(directions, map, start, stop) do
-    do_steps(start, directions, map, directions, stop, [])
+  def corporeal_steps(directions, map, start, stop) do
+    do_steps(start, directions, map, directions, fn node -> node == stop end, [])
   end
 
-  defp do_steps(current_node, directions_left, map, directions, destination_node, path)
+  def ghost_steps(directions, map) do
+    starting_nodes = map |> Map.keys() |> Enum.filter(&String.ends_with?(&1, "A"))
+    stop_fn = fn node -> String.ends_with?(node, "Z") end
 
-  defp do_steps(destination, _dirs, _map, _all_dirs, destination, path), do: Enum.reverse(path)
-
-  defp do_steps(current, [], map, dirs, dest, path) do
-    do_steps(current, dirs, map, dirs, dest, path)
+    starting_nodes
+    |> Enum.map(&do_steps(&1, directions, map, directions, stop_fn, []))
+    |> Enum.map(fn path -> length(path) - 1 end)
+    |> Enum.reduce(fn steps, acc -> lcm(acc, steps) end)
   end
 
-  defp do_steps(current, [dir | dirs], map, all_dirs, dest, path) do
-    next = elem(map[current], if(dir == :left, do: 0, else: 1))
+  def lcm(a, b)
 
-    do_steps(next, dirs, map, all_dirs, dest, [dir | path])
+  def lcm(0, 0), do: 0
+
+  def lcm(a, b) do
+    abs(Kernel.div(a * b, gcd(a, b)))
+  end
+
+  defp do_steps(current_node, directions_left, map, directions, stop_fn, path)
+
+  defp do_steps(current, [], map, dirs, stop_fn, path) do
+    do_steps(current, dirs, map, dirs, stop_fn, path)
+  end
+
+  defp do_steps(current, [dir | dirs], map, all_dirs, stop_fn, path) do
+    if stop_fn.(current) do
+      Enum.reverse([current | path])
+    else
+      next = next_node(current, map, dir)
+
+      do_steps(next, dirs, map, all_dirs, stop_fn, [current | path])
+    end
+  end
+
+  defp next_node(current, map, direction) do
+    elem(map[current], if(direction == :left, do: 0, else: 1))
   end
 
   defp parse_directions(dirs) do
@@ -74,5 +133,21 @@ defmodule AdventOfCode2023.Day08HauntedWasteland do
     |> Enum.reduce(%{}, fn entry, acc ->
       Map.put(acc, entry["source"], {entry["left"], entry["right"]})
     end)
+  end
+
+  defp gcd(a, b) when is_integer(a) and is_integer(b), do: egcd(a, b) |> elem(0)
+
+  defp egcd(a, b) when is_integer(a) and is_integer(b), do: do_egcd(abs(a), abs(b), 0, 1, 1, 0)
+
+  defp do_egcd(0, b, s, t, _u, _v), do: {b, s, t}
+
+  defp do_egcd(a, b, s, t, u, v) do
+    q = div(b, a)
+    r = rem(b, a)
+
+    m = s - u * q
+    n = t - v * q
+
+    do_egcd(r, a, u, v, m, n)
   end
 end

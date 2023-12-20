@@ -105,7 +105,15 @@ defmodule Mix.Tasks.Solve do
 
     Input.raw(8)
     |> parse()
-    |> then(fn {directions, map} -> steps(directions, map, "AAA", "ZZZ") end)
+    |> then(fn {directions, map} -> corporeal_steps(directions, map, "AAA", "ZZZ") end)
     |> length()
+  end
+
+  defp solve(8, 2) do
+    import AdventOfCode2023.Day08HauntedWasteland
+
+    Input.raw(8)
+    |> parse()
+    |> then(fn {directions, map} -> ghost_steps(directions, map) end)
   end
 end
