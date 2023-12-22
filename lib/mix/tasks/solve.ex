@@ -160,4 +160,15 @@ defmodule Mix.Tasks.Solve do
     |> parse()
     |> shortest_paths(1_000_000)
   end
+
+  defp solve(12, 1) do
+    import AdventOfCode2023.Day12HotSprings
+
+    Input.raw(12)
+    |> parse()
+    |> Enum.map(fn {conditions, counts} ->
+      valid_arrangements(conditions, counts) |> length()
+    end)
+    |> Enum.sum()
+  end
 end
