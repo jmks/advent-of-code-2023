@@ -144,4 +144,12 @@ defmodule Mix.Tasks.Solve do
     |> Enum.map(fn {distance, _} -> distance end)
     |> Enum.max()
   end
+
+  defp solve(11, 1) do
+    import AdventOfCode2023.Day11CosmicExpansion
+
+    universe = parse(Input.raw(11))
+
+    shortest_paths(universe)
+  end
 end
