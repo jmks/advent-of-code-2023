@@ -148,8 +148,16 @@ defmodule Mix.Tasks.Solve do
   defp solve(11, 1) do
     import AdventOfCode2023.Day11CosmicExpansion
 
-    universe = parse(Input.raw(11))
+    Input.raw(11)
+    |> parse()
+    |> shortest_paths()
+  end
 
-    shortest_paths(universe)
+  defp solve(11, 2) do
+    import AdventOfCode2023.Day11CosmicExpansion
+
+    Input.raw(11)
+    |> parse()
+    |> shortest_paths(1_000_000)
   end
 end

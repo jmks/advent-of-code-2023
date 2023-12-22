@@ -94,6 +94,16 @@ defmodule AdventOfCode2023.Day11CosmicExpansion do
   In this example, after expanding the universe, the sum of the shortest path between all 36 pairs of galaxies is 374.
 
   Expand the universe, then find the length of the shortest path between every pair of galaxies. What is the sum of these lengths?
+
+  --- Part Two ---
+
+  The galaxies are much older (and thus much farther apart) than the researcher initially estimated.
+
+  Now, instead of the expansion you did before, make each empty row or column one million times larger. That is, each empty row should be replaced with 1000000 empty rows, and each empty column should be replaced with 1000000 empty columns.
+
+  (In the example above, if each empty row or column were merely 10 times larger, the sum of the shortest paths between every pair of galaxies would be 1030. If each empty row or column were merely 100 times larger, the sum of the shortest paths between every pair of galaxies would be 8410. However, your universe will need to expand far beyond these values.)
+
+  Starting with the same initial image, expand the universe according to these new rules, then find the length of the shortest path between every pair of galaxies. What is the sum of these lengths?
   """
   def parse(image) do
     parsed =
@@ -121,12 +131,12 @@ defmodule AdventOfCode2023.Day11CosmicExpansion do
     {MapSet.new(galaxies), MapSet.new(empty_rows), MapSet.new(empty_cols)}
   end
 
-  def shortest_path({_galaxies, empty_rows, empty_cols}, {r1, c1}, {r2, c2}) do
+  def shortest_path({_galaxies, empty_rows, empty_cols}, {r1, c1}, {r2, c2}, expansion \\ 2) do
     row_dist = abs(r2 - r1)
     col_dist = abs(c2 - c1)
 
-    row_expansion = Enum.filter(empty_rows, fn row -> row in r1..r2 end) |> length()
-    col_expansion = Enum.filter(empty_cols, fn col -> col in c1..c2 end) |> length()
+    row_expansion = crosses_expansion(empty_rows, fn row -> row in r1..r2 end, expansion)
+    col_expansion = crosses_expansion(empty_cols, fn col -> col in c1..c2 end, expansion)
 
     row_dist + row_expansion + col_dist + col_expansion
   end
@@ -140,11 +150,20 @@ defmodule AdventOfCode2023.Day11CosmicExpansion do
     |> List.flatten()
   end
 
-  def shortest_paths({galaxies, _, _} = universe) do
+  def shortest_paths({galaxies, _, _} = universe, expansion \\ 2) do
     galaxies
     |> all_pairs()
-    |> Enum.map(fn {x, y} -> shortest_path(universe, x, y) end)
+    |> Enum.map(fn {x, y} -> shortest_path(universe, x, y, expansion) end)
     |> Enum.sum()
+  end
+
+  defp crosses_expansion(targets, cross_fun, expansion) do
+    targets
+    |> Enum.filter(cross_fun)
+    |> length()
+    |> then(fn expanses ->
+      expanses * expansion - expanses
+    end)
   end
 
   defp empty_slices(coordinates, map_fun) do
