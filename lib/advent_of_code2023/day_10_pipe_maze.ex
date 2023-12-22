@@ -120,14 +120,14 @@ defmodule AdventOfCode2023.Day10PipeMaze do
   def walk_loop(map) do
     {graph, start} = build_graph(map)
 
-    loop_pipe_ends =
+    loop_tiles =
       graph
       |> :digraph_utils.cyclic_strong_components()
       |> Enum.filter(&(start in &1))
       |> hd()
       |> MapSet.new()
 
-    distances = do_walk_loop([{0, start}], graph, loop_pipe_ends, [], MapSet.new())
+    distances = do_walk_loop([{0, start}], graph, loop_tiles, [], MapSet.new())
 
     :digraph.delete(graph)
 
@@ -189,22 +189,22 @@ defmodule AdventOfCode2023.Day10PipeMaze do
     end
   end
 
-  defp do_walk_loop([], _graph, _loop_pipe_ends, acc, _visited),
+  defp do_walk_loop([], _graph, _loop_tiles, acc, _visited),
     do: Enum.sort_by(acc, fn {dist, _} -> dist end, :asc)
 
-  defp do_walk_loop([{dist, tile} | rest], graph, loop_pipe_ends, acc, visited) do
+  defp do_walk_loop([{dist, tile} | rest], graph, loop_tiles, acc, visited) do
     if tile in visited do
-      do_walk_loop(rest, graph, loop_pipe_ends, acc, visited)
+      do_walk_loop(rest, graph, loop_tiles, acc, visited)
     else
       neighbours =
         :digraph.out_neighbours(graph, tile)
-        |> Enum.filter(&(&1 in loop_pipe_ends))
+        |> Enum.filter(&(&1 in loop_tiles))
         |> Enum.map(&{dist + 1, &1})
 
       do_walk_loop(
         rest ++ neighbours,
         graph,
-        loop_pipe_ends,
+        loop_tiles,
         [{dist, tile} | acc],
         MapSet.put(visited, tile)
       )
