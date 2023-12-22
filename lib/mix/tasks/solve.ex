@@ -134,4 +134,14 @@ defmodule Mix.Tasks.Solve do
     |> Enum.map(&extrapolate_previous_reading/1)
     |> Enum.sum()
   end
+
+  defp solve(10, 1) do
+    import AdventOfCode2023.Day10PipeMaze
+
+    Input.raw(10)
+    |> parse()
+    |> walk_loop()
+    |> Enum.map(fn {distance, _} -> distance end)
+    |> Enum.max()
+  end
 end
